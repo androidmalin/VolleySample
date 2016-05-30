@@ -83,7 +83,7 @@ public class CacheDispatcher extends Thread {
         // Make a blocking call to initialize the cache.
         mCache.initialize();
 
-        while (true) {
+        while (true) {//说明缓存线程始终是在运行的
             try {
                 // Get a request from the cache triage queue, blocking until
                 // at least one is available.
@@ -96,6 +96,8 @@ public class CacheDispatcher extends Thread {
                     continue;
                 }
 
+                // 尝试从缓存当中取出响应结果，
+                // 如何为空的话,则把这条请求加入到网络请求队列中，
                 // Attempt to retrieve this item from cache.
                 Cache.Entry entry = mCache.get(request.getCacheKey());
                 if (entry == null) {
@@ -104,9 +106,11 @@ public class CacheDispatcher extends Thread {
                     mNetworkQueue.put(request);
                     continue;
                 }
-
+                // 如果不为空的话再判断该缓存是否已过期，
+                // 如果已经过期了
+                // 同样把这条请求加入到网络请求队列中，否则就认为不需要重发网络请求，直接使用缓存中的数据即可
                 // If it is completely expired, just send it to the network.
-                if (entry.isExpired()) {
+                if (entry.isExpired()) {//过期
                     request.addMarker("cache-hit-expired");
                     request.setCacheEntry(entry);
                     mNetworkQueue.put(request);
@@ -120,9 +124,11 @@ public class CacheDispatcher extends Thread {
                 request.addMarker("cache-hit-parsed");
 
                 if (!entry.refreshNeeded()) {
+                    // 请求结果新鲜,则直接将请求结果分发,进行异步回调用户接口.
                     // Completely unexpired cache hit. Just deliver the response.
                     mDelivery.postResponse(request, response);
                 } else {
+                    // 请求结果不新鲜,但是同样还是将缓存结果返回给用户,并且同时执行网络请求,刷新Request网络结果缓存.
                     // Soft-expired cache hit. We can deliver the cached response,
                     // but we need to also send the request to the network for
                     // refreshing.

@@ -24,10 +24,13 @@ import android.os.Build;
 
 import com.android.volley.Network;
 import com.android.volley.RequestQueue;
+import com.orhanobut.logger.Logger;
 
 import java.io.File;
 
 public class Volley {
+
+    private static final String TAG = "SDFGH";
 
     /** Default on-disk cache directory. */
     private static final String DEFAULT_CACHE_DIR = "volley";
@@ -42,16 +45,22 @@ public class Volley {
     public static RequestQueue newRequestQueue(Context context, HttpStack stack) {
         File cacheDir = new File(context.getCacheDir(), DEFAULT_CACHE_DIR);
 
+        // /data/data/com.malin.volley/cache/volley
+
+        Logger.t(TAG).d("cacheDir:"+cacheDir.getAbsolutePath());
         String userAgent = "volley/0";
         try {
             String packageName = context.getPackageName();
             PackageInfo info = context.getPackageManager().getPackageInfo(packageName, 0);
             userAgent = packageName + "/" + info.versionCode;
+            // com.malin.volley/1
+            Logger.t(TAG).d("userAgent:"+userAgent);
         } catch (NameNotFoundException e) {
         }
 
         if (stack == null) {
             if (Build.VERSION.SDK_INT >= 9) {
+                // HurlStack的内部就是使用HttpURLConnection进行网络通讯
                 stack = new HurlStack();
             } else {
                 // Prior to Gingerbread, HttpUrlConnection was unreliable.

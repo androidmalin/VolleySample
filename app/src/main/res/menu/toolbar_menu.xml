@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/toolbar_action_menu_game"
+        android:icon="@mipmap/ic_menu_top_game_center"
+        android:title="@string/app_name"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/toolbar_action_menu_search"
+        android:icon="@mipmap/ic_toolbar_menu_search"
+        android:title="@string/app_name"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/toolbar_action_menu_download"
+        android:icon="@mipmap/ic_toolbar_menu_download"
+        android:title="@string/app_name"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/toolbar_action_menu_text"
+        android:title="@string/app_name"
+        app:showAsAction="never"/>
+
+</menu>

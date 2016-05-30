@@ -16,12 +16,12 @@ public class StringUtil {
                 case '{':
                 case '[':
                     json.append("\n" + indentString + letter + "\n");
-                    indentString = indentString + "\t";
+                    indentString = indentString + "\t\t\t\t";
                     json.append(indentString);
                     break;
                 case '}':
                 case ']':
-                    indentString = indentString.replaceFirst("\t", "");
+                    indentString = indentString.replaceFirst("\t\t\t\t", "");
                     json.append("\n" + indentString + letter);
                     break;
                 case ',':

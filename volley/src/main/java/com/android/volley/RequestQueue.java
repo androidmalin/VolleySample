@@ -19,6 +19,8 @@ package com.android.volley;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.orhanobut.logger.Logger;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -137,15 +139,24 @@ public class RequestQueue {
 
     /**
      * Starts the dispatchers in this queue.
+     * 而默认情况下for循环会执行四次，也就是说当调用了Volley.newRequestQueue(context)之后，
+     * 就会有五个线程一直在后台运行，不断等待网络请求的到来，
+     * CacheDispatcher是缓存线程，
+     * NetworkDispatcher是网络请求线程。
+     *
      */
     public void start() {
+        // 关闭所有正在运行的缓存线程和网络请求线程.
         stop();  // Make sure any currently running dispatchers are stopped.
         // Create the cache dispatcher and start it.
-        mCacheDispatcher = new CacheDispatcher(mCacheQueue, mNetworkQueue, mCache, mDelivery);
+        mCacheDispatcher = new CacheDispatcher(mCacheQueue, mNetworkQueue, mCache, mDelivery);//缓存线程
         mCacheDispatcher.start();
+
+        Logger.t("SDFGH").d("mDispatchers.length:"+mDispatchers.length);
 
         // Create network dispatchers (and corresponding threads) up to the pool size.
         for (int i = 0; i < mDispatchers.length; i++) {
+            //网络请求线程
             NetworkDispatcher networkDispatcher = new NetworkDispatcher(mNetworkQueue, mNetwork,
                     mCache, mDelivery);
             mDispatchers[i] = networkDispatcher;
@@ -236,11 +247,17 @@ public class RequestQueue {
         request.addMarker("add-to-queue");
 
         // If the request is uncacheable, skip the cache queue and go straight to the network.
+        //判断当前的请求是否可以缓存
         if (!request.shouldCache()) {
+            //如果不能缓存则直接将这条请求加入网络请求队列
+            //在默认情况下，每条请求都是可以缓存的，
+            //当然我们也可以调用Request的setShouldCache(false)方法来改变这一默认行为。
             mNetworkQueue.add(request);
             return request;
         }
 
+        // 那么既然默认每条请求都是可以缓存的，
+        // 自然就被添加到了缓存队列中，于是一直在后台等待的缓存线程就要开始运行起来了
         // Insert request into stage if there's already a request with the same cache key in flight.
         synchronized (mWaitingRequests) {
             String cacheKey = request.getCacheKey();
@@ -259,6 +276,7 @@ public class RequestQueue {
                 // Insert 'null' queue for this cacheKey, indicating there is now a request in
                 // flight.
                 mWaitingRequests.put(cacheKey, null);
+                //可以缓存的话,将这条请求加入缓存队列
                 mCacheQueue.add(request);
             }
             return request;

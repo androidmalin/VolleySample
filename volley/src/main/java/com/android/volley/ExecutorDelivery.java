@@ -55,6 +55,8 @@ public class ExecutorDelivery implements ResponseDelivery {
         postResponse(request, response, null);
     }
 
+    //在mResponsePoster的execute()方法中传入了一个ResponseDeliveryRunnable对象，
+    // 就可以保证该对象中的run()方法就是在主线程当中运行的了
     @Override
     public void postResponse(Request<?> request, Response<?> response, Runnable runnable) {
         request.markDelivered();
@@ -96,6 +98,8 @@ public class ExecutorDelivery implements ResponseDelivery {
 
             // Deliver a normal response or error, depending.
             if (mResponse.isSuccess()) {
+                // 每一条网络请求的响应都是回调到这个方法中，
+                // 最后我们再在这个方法中将响应的数据回调到Response.Listener的onResponse()方法中就可以了
                 mRequest.deliverResponse(mResponse.result);
             } else {
                 mRequest.deliverError(mResponse.error);

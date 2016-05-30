@@ -32,6 +32,7 @@ import com.malin.volley.request.GsonRequest;
 import com.malin.volley.request.XMLRequest;
 import com.malin.volley.utils.MapToJsonString;
 import com.malin.volley.utils.StringUtil;
+import com.malin.volley.utils.VolleyUtil;
 import com.orhanobut.logger.Logger;
 
 import org.json.JSONObject;
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private void initValue() {
         Logger.init(TAG);
         mContext = getApplicationContext();
-        mRequestQueue = Volley.newRequestQueue(mContext);
+        mRequestQueue = VolleyUtil.getRequestQueue(getApplicationContext());
     }
 
     private void initView() {
@@ -112,7 +113,10 @@ public class MainActivity extends AppCompatActivity {
          * RequestQueue内部的设计就是非常合适高并发的，因此我们不必为每一次HTTP请求都创建一个RequestQueue对象，
          * 这是非常浪费资源的，基本上在每一个需要和网络交互的Activity中创建一个RequestQueue对象就足够了
          */
-        //RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
+
+        //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/541731702-1257645756 /sdcard/
+        //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/-993813455-74959100 /sdcard/
+         mRequestQueue = Volley.newRequestQueue(mContext);
 
         /**
          * 2.创建一个StringRequest对象
@@ -151,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
          * StringRequest对象添加到RequestQueue
          */
         mRequestQueue.add(stringRequest);
+        stringRequest.setTag("stringRequest");
     }
 
 

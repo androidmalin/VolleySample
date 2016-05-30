@@ -82,7 +82,7 @@ public class NetworkDispatcher extends Thread {
     @Override
     public void run() {
         Process.setThreadPriority(Process.THREAD_PRIORITY_BACKGROUND);
-        while (true) {
+        while (true) {//网络请求线程也是在不断运行的
             long startTimeMs = SystemClock.elapsedRealtime();
             Request<?> request;
             try {
@@ -109,6 +109,7 @@ public class NetworkDispatcher extends Thread {
                 addTrafficStatsTag(request);
 
                 // Perform the network request.
+                // 调用Network的performRequest()方法来去发送网络请求
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
 

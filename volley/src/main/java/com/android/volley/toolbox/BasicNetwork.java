@@ -92,14 +92,32 @@ public class BasicNetwork implements Network {
             Map<String, String> responseHeaders = Collections.emptyMap();
             try {
                 // Gather headers.
+                // 构造Cache的HTTP headers,
+                // 主要是添加If-None-Match和If-Modified-Since两个字段
+                // 当客户端发送的是一个条件验证请求时,服务器可能返回304状态码.
+                // If-Modified-Since：代表服务器上次修改是的日期值.
+                // If-None-Match：服务器上次返回的ETag响应头的值.
+
                 Map<String, String> headers = new HashMap<String, String>();
                 addCacheHeaders(headers, request.getCacheEntry());
+
+                // 调用HurlStack的performRequest方法执行网络请求, 并将请求结果存入httpResponse变量中
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
                 int statusCode = statusLine.getStatusCode();
 
+                /**
+                 * 如果客户端发送的是一个条件验证(Conditional Validation)请求,
+                 * 则web服务器可能会返回HTTP/304响应,
+                 * 这就表明了客户端中所请求资源的缓存仍然是有效的,
+                 * 也就是说该资源从上次缓存到现在并没有被修改过.
+                 * 条件请求可以在确保客户端的资源是最新的
+                 * 同时避免因每次都请求完整资源给服务器带来的性能问题.
+                 * http://www.cnblogs.com/ziyunfei/archive/2012/11/17/2772729.html
+                 */
                 responseHeaders = convertHeaders(httpResponse.getAllHeaders());
                 // Handle cache validation.
+                // 当服务端返回304状态码时,直接将Volley缓存中结果返回
                 if (statusCode == HttpStatus.SC_NOT_MODIFIED) {
 
                     Entry entry = request.getCacheEntry();
@@ -137,6 +155,8 @@ public class BasicNetwork implements Network {
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false,
                         SystemClock.elapsedRealtime() - requestStart);
+
+                // 捕获各种异常,进行重试操作.
             } catch (SocketTimeoutException e) {
                 attemptRetryOnException("socket", request, new TimeoutError());
             } catch (ConnectTimeoutException e) {
@@ -218,11 +238,13 @@ public class BasicNetwork implements Network {
         if (entry == null) {
             return;
         }
-
+        //在进行条件请求时,客户端会提供给服务器
+        // 一个If-None-Match请求头,值为服务器上次返回的ETag响应头的值:
         if (entry.etag != null) {
             headers.put("If-None-Match", entry.etag);
         }
 
+        //在进行条件请求时,客户端会提供给服务器一个If-Modified-Since请求头,其值为服务器上次返回的Last-Modified响应头中的日期值,
         if (entry.lastModified > 0) {
             Date refTime = new Date(entry.lastModified);
             headers.put("If-Modified-Since", DateUtils.formatDate(refTime));
