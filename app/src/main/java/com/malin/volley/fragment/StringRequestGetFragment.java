@@ -62,6 +62,8 @@ public class StringRequestGetFragment extends Fragment {
     }
 
     private void getDataUseVolleyGet() {
+        //请求之前，先取消之前的请求（取消还没有进行完的请求）
+        VolleyUtil.getRequestQueue(getActivity()).cancelAll(TAG);
 
 //        1. 创建一个RequestQueue对象。
 //        2. 创建一个StringRequest对象。

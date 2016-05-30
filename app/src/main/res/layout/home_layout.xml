@@ -59,6 +59,7 @@
                 app:tabIndicatorColor="@android:color/white"
                 app:tabIndicatorHeight="2.0dp"
                 app:tabMode="fixed"
+                app:tabTextAppearance="@style/CustomTabLayoutTextAppearance"
                 app:tabTextColor="@color/selector_tab_text_white" />
 
 

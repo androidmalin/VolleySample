@@ -47,4 +47,10 @@
     <style name="OverFlow" parent="@android:style/Widget.DeviceDefault.ActionButton.Overflow">
         <item name="android:src">@mipmap/abc_ic_menu_more_overflow_mtrl_alpha</item>
     </style>
+
+    <!--TabLayout 修改字体的方法-->
+    <style name="CustomTabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">15sp</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
 </resources>
