@@ -616,6 +616,8 @@ public class MainActivity extends AppCompatActivity {
                 }
 
         );
+        //请用缓存
+        gsonRequest.setShouldCache(true);
         mRequestQueue.add(gsonRequest);
     }
 

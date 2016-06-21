@@ -148,8 +148,8 @@ public class HomeActivity extends AppCompatActivity {
         adapter.addFragment(new StringRequestGetUFT8Fragment(), "推荐");
         adapter.addFragment(new GetJsonRequestUFT8Fragment(), "番剧");
         adapter.addFragment(new ImageRequestFragment(), "分区");
-        adapter.addFragment(new StringRequestGetFragment(), "关注");
-        adapter.addFragment(new StringRequestGetFragment(), "发现");
+//        adapter.addFragment(new StringRequestGetFragment(), "关注");
+//        adapter.addFragment(new StringRequestGetFragment(), "发现");
         viewPager.setAdapter(adapter);
     }
 

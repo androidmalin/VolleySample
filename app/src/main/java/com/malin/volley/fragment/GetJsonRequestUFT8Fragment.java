@@ -29,7 +29,7 @@ public class GetJsonRequestUFT8Fragment extends Fragment {
     private Bundle mBundle;
     private String mType;
     private RequestQueue mRequestQueue;
-    private static final String URL_JSON = "http://www.weather.com.cn/adat/sk/101010100.html";//查询北京天气信息
+    private static final String URL_JSON = "http://app.bilibili.com/x/wall/get";
 
     private TextView mTextView;
 

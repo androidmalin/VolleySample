@@ -28,7 +28,7 @@ public class StringRequestGetFragment extends Fragment {
     private Bundle mBundle;
     private String mType;
     private RequestQueue mRequestQueue;
-    private static final String URL_JSON = "http://www.weather.com.cn/adat/sk/101010100.html";//查询北京天气信息
+    private static final String URL_JSON = "http://www.baidu.com";//查询北京天气信息
 
     private TextView mTextView;
 
@@ -62,8 +62,6 @@ public class StringRequestGetFragment extends Fragment {
     }
 
     private void getDataUseVolleyGet() {
-        //请求之前，先取消之前的请求（取消还没有进行完的请求）
-        VolleyUtil.getRequestQueue(getActivity()).cancelAll(TAG);
 
 //        1. 创建一个RequestQueue对象。
 //        2. 创建一个StringRequest对象。
@@ -131,6 +129,7 @@ public class StringRequestGetFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
+        Logger.t(TAG).d("onStop()");
         if (mRequestQueue!=null){
             mRequestQueue.cancelAll(TAG);
         }

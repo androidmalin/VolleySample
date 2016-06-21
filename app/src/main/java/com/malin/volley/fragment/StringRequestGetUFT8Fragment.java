@@ -28,7 +28,7 @@ public class StringRequestGetUFT8Fragment extends Fragment {
     private Bundle mBundle;
     private String mType;
     private RequestQueue mRequestQueue;
-    private static final String URL_JSON = "http://www.weather.com.cn/adat/sk/101010100.html";//查询北京天气信息
+    private static final String URL_JSON = "http://c.m.163.com/nc/article/headline/T1348647909107/0-20.html?from=toutiao&size=20&passport=&devId=44t6%2B5mG3ACAOlQOCLuIHg%3D%3D&lat=&lon=&version=8.0&net=wifi&ts=1464663640&sign=c2mMvacbYvxLYEGlQOKGkT10e6%2FfbSzmjj%2B%2B6LQ%2BIIF48ErR02zJ6%2FKXOnxX046I&encryption=1&canal=wandoujia_news&mac=h4YFZU1G3D7MIqgTTfUI9ahnYB%2BxK6YGLcdcZR%2BsrK8%3D";//查询北京天气信息
 
     private TextView mTextView;
 

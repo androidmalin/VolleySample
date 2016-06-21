@@ -31,7 +31,7 @@ public class ImageRequestFragment extends Fragment {
     private Bundle mBundle;
     private String mType;
     private RequestQueue mRequestQueue;
-    private static final String URL_IMAGE = "http://img.my.csdn.net/uploads/201404/13/1397393290_5765.jpeg";
+    private static final String URL_IMAGE = "http://i0.hdslb.com/bfs/bangumi/28619f5dc1a72f0a5238abe26cc22fcafefcb751.jpg_640x200.jpg";
     private ImageView mImageView;
 
     public ImageRequestFragment newFragemnt(Bundle bundle) {
