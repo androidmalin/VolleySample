@@ -6,7 +6,9 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.support.v4.util.LruCache;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.text.TextUtils;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.util.TypedValue;
 import android.widget.ImageView;
@@ -30,6 +32,8 @@ import com.malin.volley.bean.WeatherInfo;
 import com.malin.volley.request.ChartStringRequest;
 import com.malin.volley.request.GsonRequest;
 import com.malin.volley.request.XMLRequest;
+import com.malin.volley.utils.DensityUtil;
+import com.malin.volley.utils.JsonUtils;
 import com.malin.volley.utils.MapToJsonString;
 import com.malin.volley.utils.StringUtil;
 import com.malin.volley.utils.VolleyUtil;
@@ -58,11 +62,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String URL_OK = "http://www.baidu.com";
     private static final String URL_BAD = "httsssssp://www.baidu.coms";
     private static final String URL_JSON = "http://www.weather.com.cn/adat/sk/101010100.html";//查询北京天气信息
-    private static final String URL_IMAGE = "http://i0.hdslb.com/bfs/face/1433fb005e3e7a77b6cea27205d2c27e901b5818.jpg_200x200.jpg";
-    private static final String URL_IMAGE_TWO = "http://img.my.csdn.net/uploads/201404/13/1397393290_5765.jpeg";
-    private static final String URL_IMAGE_THREE = "http://i1.hdslb.com/promote/5ca078e8bd02b0e94d72ba7654f84885.jpg";
+    private static final String URL_IMAGE = "http://i0.hdslb.com/Wallpaper/2011-autumn.jpg";
+    private static final String URL_IMAGE_TWO = "http://i0.hdslb.com/Wallpaper/summer_2011_wide.jpg";//4320*1080
+    private static final String URL_IMAGE_THREE = "http://i0.hdslb.com/Wallpaper/BILIBILI-dong.jpg";
     private static final String URL_XML = "http://flash.weather.com.cn/wmaps/xml/china.xml";
     private RequestQueue mRequestQueue;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
         initView();
         getDataUseVolleyGet();
         getDataUseVolleyGetUFT8();
+        getDataPostVolley();
         getJsonDataVolleyGet();
         getImageViaVolley();
         loadImageViaVolleyImageLoader();
@@ -116,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
         //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/541731702-1257645756 /sdcard/
         //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/-993813455-74959100 /sdcard/
-         mRequestQueue = Volley.newRequestQueue(mContext);
+        mRequestQueue = Volley.newRequestQueue(mContext);
 
         /**
          * 2.创建一个StringRequest对象
@@ -136,8 +142,12 @@ public class MainActivity extends AppCompatActivity {
                         boolean isMainUi = getIsMainUI();
                         Logger.d("isMainUi:" + isMainUi);
                         Logger.d("成功");
-                        Logger.json(response);
-                        mTextViewGetResult.setText(StringUtil.formatString(response));
+                        if (!TextUtils.isEmpty(response)) {
+                            Logger.json(response);
+                            mTextViewGetResult.setText(StringUtil.formatString(response));
+                        } else {
+                            mTextViewGetResult.setText("response==null");
+                        }
                     }
                 },
 
@@ -147,7 +157,12 @@ public class MainActivity extends AppCompatActivity {
                         boolean isMainUi = getIsMainUI();
                         Logger.e("isMainUi:" + isMainUi);
                         Logger.e("失败");
-                        Logger.e(error.getMessage(), error);
+                        if (error != null) {
+                            Logger.e(error.getMessage(), error);
+                            mTextViewGetResult.setText(error.getMessage());
+                        } else {
+                            mTextViewGetResult.setText("error==null");
+                        }
                     }
                 });
         /**
@@ -230,17 +245,24 @@ public class MainActivity extends AppCompatActivity {
         /**
          * 2.创建一个StringRequest对象。
          */
-        StringRequest stringRequest = new StringRequest(
-
+        ChartStringRequest stringRequest = new ChartStringRequest(
                 Request.Method.POST,
                 URL_OK,
-
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
                         boolean isMainUi = getIsMainUI();
                         Logger.d("isMainUi:" + isMainUi);
                         Logger.d("成功");
+                        if (JsonUtils.isGoodJson(response)){
+                            Logger.d("response is json");
+                            Logger.json(response);
+                        }else{
+                            Logger.d("response is not 0json");
+                            Logger.d(response);
+                        }
+                        mTextViewGetResultUFT8.setMovementMethod(ScrollingMovementMethod.getInstance());//滚动
+                        mTextViewGetResultUFT8.setText(Html.fromHtml(response));
 
                     }
                 },
@@ -253,10 +275,11 @@ public class MainActivity extends AppCompatActivity {
                         Logger.e("失败");
                         Logger.e(error.getMessage(), error);
                         Logger.e("");
+                        mTextViewGetResultUFT8.setText(error.getMessage());
                     }
-                }) {
-
-
+                })
+            //需要在StringRequest的匿名类中重写getParams()方法，在这里设置POST参数就可以了
+        {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> map = new HashMap<String, String>();
@@ -268,7 +291,6 @@ public class MainActivity extends AppCompatActivity {
         mRequestQueue.add(stringRequest);
     }
 
-
     private void getJsonDataVolleyGet() {
 
         /**
@@ -279,8 +301,14 @@ public class MainActivity extends AppCompatActivity {
         /**
          * 2.创建一个StringRequest对象。
          */
+        /**
+         * 第一个:目标服务器的URL地址，
+         * 第二个参数为null的话，为Get请求
+         * 第三个:服务器响应成功的回调，
+         * 第四个:服务器响应失败的回调。
+         */
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                URL_JSON,
+                URL_JSON+"ddd",
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -291,6 +319,8 @@ public class MainActivity extends AppCompatActivity {
                         if (response != null) {
                             Logger.json(response.toString());
                             mTextViewJsonResult.setText(StringUtil.formatString(response.toString()));
+                        }else{
+                            mTextViewJsonResult.setText("response == null");
                         }
                     }
                 },
@@ -301,6 +331,32 @@ public class MainActivity extends AppCompatActivity {
                         Logger.e("isMainUi:" + isMainUi);
                         Logger.e("失败");
                         Logger.e(error.getMessage(), error);
+                        if (error!=null){
+                            StringBuilder sb = new StringBuilder();
+
+                            if (error.networkResponse!=null){
+                                sb.append("error.networkResponse!=null"+"\n");
+                                Map<String, String> headers = error.networkResponse.headers;
+                                byte[] data = error.networkResponse.data;
+                                int statusCode  = error.networkResponse.statusCode;
+                                long networkTimeMs = error.networkResponse.networkTimeMs;
+
+                                sb.append("statusCode:"+statusCode+"\n");
+                                if (headers!=null){
+                                    sb.append("headers:"+headers.toString()+"\n");
+                                }
+                                if (data!=null){
+                                    sb.append("data:"+data.toString()+"\n");
+                                }
+                                sb.append("networkTimeMs:"+networkTimeMs+"\n");
+                            }else{
+                                sb.append("error.networkResponse==null"+"\n");
+                            }
+                            sb.append("error!=null"+"\n"+"errorMessage:"+error.getLocalizedMessage());
+                            mTextViewJsonResult.setText(sb.toString());
+                        }else{
+                            mTextViewJsonResult.setText("error==null");
+                        }
                     }
                 });
 
@@ -334,7 +390,7 @@ public class MainActivity extends AppCompatActivity {
          * 最后将这个ImageRequest对象添加到RequestQueue里就可以了，如下所示：
          **/
 
-        /**2.
+        /**
          * String url:图片的URL地址
          * Response.Listener<Bitmap> listener:图片请求成功的回调
          * int maxWidth:图片最大的宽度
@@ -356,8 +412,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 },
-                100,
-                100,
+                DensityUtil.convertDipOrPx(getApplicationContext(),300),
+                DensityUtil.convertDipOrPx(getApplicationContext(),300),
                 ImageView.ScaleType.CENTER,
                 Bitmap.Config.RGB_565,
                 new Response.ErrorListener() {
@@ -368,33 +424,41 @@ public class MainActivity extends AppCompatActivity {
                         Logger.e("isMainUi:" + isMainUi);
                         Logger.e("失败");
                         Logger.e(error.getMessage(), error);
-                        NetworkResponse networkResponse = error.networkResponse;
-                        int statusCode = networkResponse.statusCode;
-                        byte[] data = networkResponse.data;
-                        Map<String, String> headers = networkResponse.headers;
-                        boolean notModified = networkResponse.notModified;
-                        long networkTimeMs = networkResponse.networkTimeMs;
-                        Logger.e("statusCode:" + statusCode);
 
-                        if (data != null) {
-                            Logger.e("data:" + data.toString());
-                        } else {
-                            Logger.e("data==null");
+                        if (error!=null&&error.networkResponse!=null){
+                            StringBuilder sb = new StringBuilder();
+                            NetworkResponse networkResponse = error.networkResponse;
+                            int statusCode = networkResponse.statusCode;
+                            byte[] data = networkResponse.data;
+                            Map<String, String> headers = networkResponse.headers;
+                            boolean notModified = networkResponse.notModified;
+                            long networkTimeMs = networkResponse.networkTimeMs;
+                            Logger.e("statusCode:" + statusCode);
+                            sb.append("Image load error:networkResponse "+"\n");
+                            sb.append("statusCode:" + statusCode+"\n");
+                            sb.append("notModified:" + notModified+"\n");
+                            sb.append("networkTimeMs:" + networkTimeMs+"ms"+"\n");
+                            if (data != null) {
+                                Logger.e("data:" + data.toString());
+                            } else {
+                                Logger.e("data==null");
+                            }
+
+                            if (headers != null) {
+                                String json = MapToJsonString.mapToJSONObject(headers);
+                                Logger.json(json);
+                                sb.append("header info:"+"\n"+StringUtil.formatString(json)+"\n");
+                            } else {
+                                Logger.e("headers == null");
+                                sb.append("headers == null");
+                            }
+
+                            mTextViewGetResult.setText(sb.toString());
+                            Logger.e("notModified:" + notModified);
+                            Logger.e("networkTimeMs:" + networkTimeMs + "ms");
                         }
-
-                        if (headers != null) {
-                            String json = MapToJsonString.mapToJSONObject(headers);
-                            Logger.json(json);
-                        } else {
-                            Logger.e("headers == null");
-                        }
-
-                        Logger.e("notModified:" + notModified);
-                        Logger.e("networkTimeMs:" + networkTimeMs + "ms");
                     }
                 }
-
-
         );
 
         mRequestQueue.add(imageRequest);
@@ -419,7 +483,9 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader imageLoader = new ImageLoader(mRequestQueue, new BitmapCache());
 
         /**
-         * 我们通过调用ImageLoader的getImageListener()方法能够获取到一个ImageListener对象，getImageListener()方法接收三个参数，
+         * 我们通过调用ImageLoader的getImageListener()方法能够获取到一个ImageListener对象，
+         * getImageListener()方法接收三个参数
+         *
          * 第一个参数指定用于显示图片的ImageView控件，
          * 第二个参数指定加载图片的过程中显示的图片，
          * 第三个参数指定加载图片失败的情况下显示的图片。
@@ -429,10 +495,11 @@ public class MainActivity extends AppCompatActivity {
         ImageLoader.ImageListener imageListener = ImageLoader.getImageListener(
                 mImageViewTwo,
                 R.mipmap.bili_default_avatar,
-                R.mipmap.ic_launcher);
+                R.mipmap.ic_launcher
+        );
         int ww = (int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                123,
+                100,
                 getResources().getDisplayMetrics());
 
         //4.调用ImageLoader的get()方法加载网络上的图片。
@@ -456,16 +523,12 @@ public class MainActivity extends AppCompatActivity {
         public BitmapCache() {
 
             int maxSize = 10 * 1024 * 1024;
-
             mLruCache = new LruCache<String, Bitmap>(maxSize) {
-
                 @Override
                 protected int sizeOf(String key, Bitmap bitmap) {
                     return bitmap.getRowBytes() * bitmap.getHeight();
                 }
             };
-
-
         }
 
         @Override
@@ -475,7 +538,6 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void putBitmap(String url, Bitmap bitmap) {
-
             mLruCache.put(url, bitmap);
         }
     }
@@ -495,7 +557,7 @@ public class MainActivity extends AppCompatActivity {
          */
 
         //1.创建一个RequestQueue对象
-       // RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
+        // RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
 
         //2.创建一个ImageLoader对象
         ImageLoader imageLoader = new ImageLoader(mRequestQueue, new BitmapCache());
@@ -511,7 +573,7 @@ public class MainActivity extends AppCompatActivity {
          */
         mNetworkImageView.setDefaultImageResId(R.mipmap.bili_default_avatar);
         mNetworkImageView.setErrorImageResId(R.mipmap.ic_launcher);
-        mNetworkImageView.setImageUrl(URL_IMAGE_TWO, imageLoader);
+        mNetworkImageView.setImageUrl(URL_IMAGE_THREE, imageLoader);
 
         /**
          * NetworkImageView并不需要提供任何设置最大宽高的方法也能够对加载的图片进行压缩。
@@ -529,11 +591,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private boolean getIsMainUI() {
-        if (Looper.getMainLooper() == Looper.myLooper()) {
-            return true;
-        } else {
-            return false;
-        }
+        return Looper.getMainLooper() == Looper.myLooper();
     }
 
     private void getXML() {
@@ -586,8 +644,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    private void getGsonData(){
-       // RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
+    private void getGsonData() {
+        // RequestQueue mRequestQueue = Volley.newRequestQueue(mContext);
 
         GsonRequest<Weather> gsonRequest = new GsonRequest<Weather>(
                 URL_JSON,
@@ -599,7 +657,7 @@ public class MainActivity extends AppCompatActivity {
                         WeatherInfo info = weather.weatherinfo;
                         String city = info.city;
                         String WD = info.WD;
-                        String WS  = info.WS;
+                        String WS = info.WS;
                         StringBuilder sb = new StringBuilder();
                         sb.append(city).append(" ").append(WD).append(" ").append(WS);
 
@@ -611,7 +669,7 @@ public class MainActivity extends AppCompatActivity {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Logger.e(error.getMessage(),error);
+                        Logger.e(error.getMessage(), error);
                     }
                 }
 

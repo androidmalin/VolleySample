@@ -49,8 +49,8 @@
 
         <com.android.volley.toolbox.NetworkImageView
             android:id="@+id/networkImageView"
-            android:layout_width="123dp"
-            android:layout_height="123dp"
+            android:layout_width="300dp"
+            android:layout_height="300dp"
             android:layout_marginTop="20dp"
             android:background="@mipmap/ic_launcher"
             android:scaleType="centerCrop" />

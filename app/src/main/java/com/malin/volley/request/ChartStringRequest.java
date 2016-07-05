@@ -44,7 +44,7 @@ public class ChartStringRequest extends Request<String> {
     protected Response<String> parseNetworkResponse(NetworkResponse response) {
         String parsed;
         try {
-            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers,"UTF-8"));
+            parsed = new String(response.data, HttpHeaderParser.parseCharset(response.headers, "UTF-8"));
         } catch (UnsupportedEncodingException e) {
             parsed = new String(response.data);
         }
