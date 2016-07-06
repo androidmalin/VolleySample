@@ -139,11 +139,10 @@ public class RequestQueue {
 
     /**
      * Starts the dispatchers in this queue.
-     * 而默认情况下for循环会执行四次，也就是说当调用了Volley.newRequestQueue(context)之后，
-     * 就会有五个线程一直在后台运行，不断等待网络请求的到来，
-     * CacheDispatcher是缓存线程，
+     * 默认情况下for循环会执行四次，也就是说当调用了
+     * Volley.newRequestQueue(context)之后，就会有五个线程一直在后台运行，不断等待网络请求的到来，
+     * 其中CacheDispatcher是缓存线程，
      * NetworkDispatcher是网络请求线程。
-     *
      */
     public void start() {
         // 关闭所有正在运行的缓存线程和网络请求线程.

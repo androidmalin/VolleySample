@@ -60,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
     private TextView mTextViewXML;
     private TextView mTextViewWeather;
     private static final String URL_OK = "http://www.baidu.com";
-    private static final String URL_BAD = "httsssssp://www.baidu.coms";
     private static final String URL_JSON = "http://www.weather.com.cn/adat/sk/101010100.html";//查询北京天气信息
     private static final String URL_IMAGE = "http://i0.hdslb.com/Wallpaper/2011-autumn.jpg";
     private static final String URL_IMAGE_TWO = "http://i0.hdslb.com/Wallpaper/summer_2011_wide.jpg";//4320*1080
@@ -68,6 +67,12 @@ public class MainActivity extends AppCompatActivity {
     private static final String URL_XML = "http://flash.weather.com.cn/wmaps/xml/china.xml";
     private RequestQueue mRequestQueue;
 
+    /**
+     * 取出缓存文件的步骤
+     *1. adb shell su 0 cp /data/data/com.malin.volley/cache/volley/-993813455-74959100 /sdcard/
+     *2. cd
+     *3. adb pull /sdcard/-993813455-74959100 /home/malin/volleycache
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +127,8 @@ public class MainActivity extends AppCompatActivity {
 
         //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/541731702-1257645756 /sdcard/
         //adb shell su 0 cp /data/data/com.malin.volley/cache/volley/-993813455-74959100 /sdcard/
+        //cd
+        //adb pull /sdcard/-993813455-74959100 /home/malin/volleycache
         mRequestQueue = Volley.newRequestQueue(mContext);
 
         /**
@@ -620,12 +627,15 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 eventType = response.next();
                             }
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mTextViewXML.setText(builder.toString());
-                                }
-                            });
+
+                            boolean isMainUi = getIsMainUI();
+                            Logger.d("isMainUi:" + isMainUi);
+                            Logger.d("成功");
+                            if (response != null) {
+                                mTextViewXML.setText(builder.toString());
+                            }else{
+                                mTextViewJsonResult.setText("response == null");
+                            }
                         } catch (XmlPullParserException e) {
                             e.printStackTrace();
                         } catch (IOException e) {

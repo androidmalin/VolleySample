@@ -102,6 +102,12 @@ public class BasicNetwork implements Network {
                 addCacheHeaders(headers, request.getCacheEntry());
 
                 // 调用HurlStack的performRequest方法执行网络请求, 并将请求结果存入httpResponse变量中
+                // 这里的HttpStack就是在一开始调用newRequestQueue()方法是创建的实例，
+                // 默认情况下如果系统版本号大于9就创建的HurlStack对象，否则创建HttpClientStack对象。
+                // 前面已经说过，这两个对象的内部实际就是
+                // 分别使用HttpURLConnection和HttpClient来发送网络请求的，
+                // 我们就不再跟进去阅读了，之后会将服务器返回的数据组装成一个NetworkResponse对象进行返回。
+
                 httpResponse = mHttpStack.performRequest(request, headers);
                 StatusLine statusLine = httpResponse.getStatusLine();
                 int statusCode = statusLine.getStatusCode();

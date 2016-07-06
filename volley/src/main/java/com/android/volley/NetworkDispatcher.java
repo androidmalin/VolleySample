@@ -22,6 +22,8 @@ import android.os.Build;
 import android.os.Process;
 import android.os.SystemClock;
 
+import com.android.volley.toolbox.BasicNetwork;
+
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -110,6 +112,18 @@ public class NetworkDispatcher extends Thread {
 
                 // Perform the network request.
                 // 调用Network的performRequest()方法来去发送网络请求
+                /**
+                 * Network是一个接口，这里具体的实现是BasicNetwork，
+                 * 我们来看下它的performRequest()方法
+                 *
+                 * {@link BasicNetwork#performRequest}
+                 */
+                //在NetworkDispatcher中收到了NetworkResponse这个返回值后
+                // 又会调用Request的parseNetworkResponse()方法来解析NetworkResponse中的数据，
+                // 以及将数据写入到缓存，这个方法的实现是交给Request的子类来完成的，
+                // 因为不同种类的Request解析的方式也肯定不同。
+                // 还记得我们在上一篇文章中学习的自定义Request的方式吗？
+                // 其中parseNetworkResponse()这个方法就是必须要重写的。
                 NetworkResponse networkResponse = mNetwork.performRequest(request);
                 request.addMarker("network-http-complete");
 
@@ -121,6 +135,8 @@ public class NetworkDispatcher extends Thread {
                 }
 
                 // Parse the response here on the worker thread.
+                //parseNetworkResponse()方法来解析NetworkResponse中的数据，
+                //以及将数据写入到缓存，这个方法的实现是交给Request的子类来完成的，
                 Response<?> response = request.parseNetworkResponse(networkResponse);
                 request.addMarker("network-parse-complete");
 
@@ -133,6 +149,12 @@ public class NetworkDispatcher extends Thread {
 
                 // Post the response back.
                 request.markDelivered();
+                //在解析完了NetworkResponse中的数据之后，
+                // 又会调用ExecutorDelivery的postResponse()方法来回调解析出的数据
+                /**
+                 * 找到ResponseDelivery接口的实现类
+                 * {@link ExecutorDelivery#postResponse}
+                 */
                 mDelivery.postResponse(request, response);
             } catch (VolleyError volleyError) {
                 volleyError.setNetworkTimeMs(SystemClock.elapsedRealtime() - startTimeMs);

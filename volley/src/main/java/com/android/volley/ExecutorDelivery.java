@@ -98,6 +98,7 @@ public class ExecutorDelivery implements ResponseDelivery {
 
             // Deliver a normal response or error, depending.
             if (mResponse.isSuccess()) {
+                // 这个就是我们在自定义Request时需要重写的另外一个方法
                 // 每一条网络请求的响应都是回调到这个方法中，
                 // 最后我们再在这个方法中将响应的数据回调到Response.Listener的onResponse()方法中就可以了
                 mRequest.deliverResponse(mResponse.result);
