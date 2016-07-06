@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private NetworkImageView mNetworkImageView;
     private TextView mTextViewGetResult;
     private TextView mTextViewGetResultUFT8;
+    private TextView mTextViewPostResultUTF8;
     private TextView mTextViewJsonResult;
     private TextView mTextViewXML;
     private TextView mTextViewWeather;
@@ -99,6 +100,7 @@ public class MainActivity extends AppCompatActivity {
     private void initView() {
         mTextViewGetResult = (TextView) findViewById(R.id.tv_get_result);
         mTextViewGetResultUFT8 = (TextView) findViewById(R.id.tv_get_result_uft8);
+        mTextViewPostResultUTF8 = (TextView) findViewById(R.id.tv_post_result_uft8);
         mTextViewJsonResult = (TextView) findViewById(R.id.tv_get_json_result);
         mImageView = (ImageView) findViewById(R.id.iv_image);
         mImageViewTwo = (ImageView) findViewById(R.id.iv_image_two);
@@ -268,8 +270,8 @@ public class MainActivity extends AppCompatActivity {
                             Logger.d("response is not 0json");
                             Logger.d(response);
                         }
-                        mTextViewGetResultUFT8.setMovementMethod(ScrollingMovementMethod.getInstance());//滚动
-                        mTextViewGetResultUFT8.setText(Html.fromHtml(response));
+                        mTextViewPostResultUTF8.setMovementMethod(ScrollingMovementMethod.getInstance());//滚动
+                        mTextViewPostResultUTF8.setText(Html.fromHtml(response));
 
                     }
                 },
@@ -282,7 +284,7 @@ public class MainActivity extends AppCompatActivity {
                         Logger.e("失败");
                         Logger.e(error.getMessage(), error);
                         Logger.e("");
-                        mTextViewGetResultUFT8.setText(error.getMessage());
+                        mTextViewPostResultUTF8.setText(error.getMessage());
                     }
                 })
             //需要在StringRequest的匿名类中重写getParams()方法，在这里设置POST参数就可以了
@@ -315,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
          * 第四个:服务器响应失败的回调。
          */
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
-                URL_JSON+"ddd",
+                URL_JSON,
                 null,
                 new Response.Listener<JSONObject>() {
                     @Override
